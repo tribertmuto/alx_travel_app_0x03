@@ -1,12 +1,34 @@
 from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
+from .models import Booking
 
 @shared_task
 def send_booking_confirmation_email(booking_id, user_email):
-    subject = 'Booking Confirmation'
-    message = f'Your booking with ID {booking_id} has been confirmed.'
-    from_email = settings.DEFAULT_FROM_EMAIL
-    recipient_list = [user_email]
+    try:
+        booking = Booking.objects.get(id=booking_id)
+        subject = 'Booking Confirmation'
+        message = f"""
+        Dear {booking.user.username},
 
-    send_mail(subject, message, from_email, recipient_list)
+        Your booking has been confirmed!
+
+        Booking Details:
+        - Booking ID: {booking.id}
+        - Listing: {booking.listing.title}
+        - Price: ${booking.listing.price}
+        - Booking Date: {booking.booking_date}
+
+        Thank you for using our service.
+
+        Best regards,
+        ALX Travel App Team
+        """
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [user_email]
+
+        send_mail(subject, message, from_email, recipient_list)
+    except Booking.DoesNotExist:
+        # Handle case where booking doesn't exist
+        pass
+            

@@ -35,9 +35,27 @@ This is a Django travel app with Celery background task management and email not
 
 - POST /api/bookings/ - Create a new booking (triggers email notification asynchronously)
 
+## Features
+
+- **Background Task Management**: Uses Celery with RabbitMQ for asynchronous task processing.
+- **Email Notifications**: Sends booking confirmation emails asynchronously upon booking creation.
+
+## API Endpoints
+
+- POST /api/bookings/ - Create a new booking (triggers email notification asynchronously)
+
+## Email Task Details
+
+The `send_booking_confirmation_email` task in `listings/tasks.py`:
+- Retrieves booking details from the database
+- Sends a personalized email with booking information
+- Includes error handling for missing bookings
+
 ## Testing
 
 To test the background task:
-1. Create a booking via the API.
-2. The email confirmation should be sent asynchronously via Celery.
+1. Ensure RabbitMQ is running and Celery worker is started
+2. Create a booking via the API (POST /api/bookings/)
+3. Check Celery worker logs for task execution
+4. Verify that the confirmation email is sent to the provided email address
 
